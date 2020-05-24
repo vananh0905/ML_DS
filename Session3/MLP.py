@@ -25,7 +25,7 @@ class MLP:
 
         biases_1 = tf.get_variable(
             name='biases_input_hidden',
-            shape=self._hidden_size,
+            shape=(1,self._hidden_size),
             initialiser=tf.random_normal_initializer(seed=2018)
         )
 
@@ -37,7 +37,7 @@ class MLP:
 
         biases_2 = tf.get_variable(
             name='biases_hidden_output',
-            shape=NUM_CLASSES,
+            shape=(1,NUM_CLASSES),
             initialiser=tf.random_normal_initializer(seed=2018)
         )
 
@@ -45,11 +45,8 @@ class MLP:
         hidden = tf.sigmoid(hidden)
         logits = tf.matmul(hidden, weights_2) + biases_2
 
-        labels_one_hot = tf.one_hot(indices=self._real_Y,
-                                    depth=NUM_CLASSES,
-                                    dtype=tf.float32)
-        loss = tf.nn.softmax_cross_entropy_with_logits(labels=labels_one_hot,
-                                                       logits=logits)
+        labels_one_hot = tf.one_hot(indices=self._real_Y, depth=NUM_CLASSES, dtype=tf.float32)
+        loss = tf.nn.softmax_cross_entropy_with_logits(labels=labels_one_hot, logits=logits)
         loss = tf.reduce_mean(loss)
 
         prob = tf.nn.softmax(logits)
@@ -79,11 +76,12 @@ class MLP:
 class DataReader:
     def __init__(self, data_path, batch_size, vocab_size):
         self._batch_size = batch_size
-        with open(data_path) as f:
-            d_lines = f.read().splitlines()
-
         self._data = []
         self._labels = []
+        
+        with open(data_path) as f:
+            d_lines = f.read().splitlines()
+            
         for data_id, line in enumerate(d_lines):
             vector = [0.0 for _ in range(vocab_size)]
             features = line.split('<fff>')
